@@ -1,6 +1,9 @@
 import argparse
 import os.path
+import shutil
 from datetime import date
+from urllib.error import URLError, HTTPError
+
 
 def write_file(path: str, content: str):
     with open(path, "w") as fp:
@@ -18,6 +21,8 @@ def generate(year: int, day: int):
     else:
         print(f"Directory for challenge {year}.{day} already exists")
         exit(1)
+
+    print(f"Generating challenge project for {year}.{day}")
 
     write_file(os.path.join(day_path, "__init__.py"), "")
     write_file(os.path.join(day_path, "task1.txt"), "")
@@ -68,6 +73,39 @@ class TestCases(unittest.TestCase):
 """
     write_file(os.path.join(day_path, "task1.py"), code_content)
     write_file(os.path.join(day_path, "task2.py"), code_content)
+    print(f"Done!")
+
+
+def download(year: int, day: int, session: str):
+    day_path = os.path.join(os.getcwd(), f"year{year}", f"day{day:02}")
+    if not os.path.exists(day_path):
+        print(f"Directory for challenge {year}.{day} doesn't exists. Generate first.")
+        exit(1)
+
+    print(f"Downloading challenge input for project {year}.{day}")
+
+    import urllib.request
+    req = urllib.request.Request(method='GET', url=f'https://adventofcode.com/{year}/day/{day}/input')
+    req.add_header("Cookie", f"session={session}")
+    try:
+        with urllib.request.urlopen(req) as f:
+            if f.status == 404:
+                print(f"The file is not available yet.")
+                exit(1)
+            write_file(os.path.join(day_path, "task1.py"), f.read().decode('utf-8'))
+            shutil.copy(os.path.join(day_path, "task1.py"), os.path.join(day_path, "task2.py"))
+    except HTTPError as e:
+        if e.code == 404:
+            print(f"The file is not available yet.")
+            exit(1)
+        else:
+            print(f"There was a problem {e.code} downloading the file: {e.reason}")
+            exit(1)
+    except URLError as e:
+        print(f"There was a problem downloading the file: {e.reason}")
+
+    print(f"Done!")
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -79,8 +117,24 @@ def main():
     parser.add_argument('-y', '--year', type=int, default=current_date.year)
     parser.add_argument('-d', '--day', type=int, required=True)
 
+    subparsers = parser.add_subparsers(dest='command', required=True, help="Commands")
+
+    parser_generate = subparsers.add_parser("generate", help="Generate an AoC challenge project")
+    parser_download = subparsers.add_parser("download", help="Download an AoC challenge input")
+    parser_download.add_argument('-s', '--session', type=str, required=True)
+    parser_full = subparsers.add_parser("full", help="Perform all commands for an AoC challenge")
+    parser_full.add_argument('-s', '--session', type=str, required=True)
+
     args = parser.parse_args()
-    generate(args.year, args.day)
+
+    match args.command:
+        case "generate":
+            generate(args.year, args.day)
+        case "download":
+            download(args.year, args.day, args.session)
+        case "full":
+            generate(args.year, args.day)
+            download(args.year, args.day, args.session)
 
 
 if __name__ == '__main__':
