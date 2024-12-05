@@ -92,8 +92,8 @@ def download(year: int, day: int, session: str):
             if f.status == 404:
                 print(f"The file is not available yet.")
                 exit(1)
-            write_file(os.path.join(day_path, "task1.py"), f.read().decode('utf-8'))
-            shutil.copy(os.path.join(day_path, "task1.py"), os.path.join(day_path, "task2.py"))
+            write_file(os.path.join(day_path, "task1.txt"), f.read().decode('utf-8'))
+            shutil.copy(os.path.join(day_path, "task1.txt"), os.path.join(day_path, "task2.txt"))
     except HTTPError as e:
         if e.code == 404:
             print(f"The file is not available yet.")
