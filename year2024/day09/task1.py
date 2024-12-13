@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Self, Tuple
 
 from utilities.file import data_example_filename, data_filename
-from utilities.parse import parse
+from utilities.parse import parse_lines
 
 
 @dataclass(frozen=True)
@@ -105,7 +105,7 @@ def load_line(num: int, line: str) -> LineModel:
 
 
 def task(filename: str) -> int:
-    disks = list(parse(filename, load_line))
+    disks = list(parse_lines(filename, load_line))
     assert len(disks) == 1
     return disks[0].compact().checksum
 

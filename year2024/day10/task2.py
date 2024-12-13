@@ -4,7 +4,7 @@ from email.policy import default
 from typing import Self, Sequence
 
 from utilities.file import data_example_filename, data_filename
-from utilities.parse import parse
+from utilities.parse import parse_lines
 
 type LineModel = list[int]
 
@@ -91,7 +91,7 @@ class Map:
 
 
 def task(filename: str) -> int:
-    lines = list(parse(filename, load_line))
+    lines = list(parse_lines(filename, load_line))
     map = Map(lines)
     return map.walk_all()
 

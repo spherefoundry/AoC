@@ -4,7 +4,7 @@ from enum import StrEnum
 from typing import Self, Tuple
 
 from utilities.file import data_example_filename, data_filename
-from utilities.parse import parse
+from utilities.parse import parse_lines
 
 
 class Field(StrEnum):
@@ -139,7 +139,7 @@ def load_line(num: int, line: str) -> LineModel:
 
 
 def task(filename: str) -> int:
-    lines = parse(filename, load_line)
+    lines = parse_lines(filename, load_line)
     map = Map(list(lines))
     return map.walk()
 

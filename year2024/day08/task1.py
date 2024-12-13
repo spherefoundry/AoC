@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Self
 
 from utilities.file import data_example_filename, data_filename
-from utilities.parse import parse
+from utilities.parse import parse_lines
 
 
 @dataclass(frozen=True)
@@ -53,7 +53,7 @@ def load_line(num: int, line: str) -> LineModel:
 def task(filename: str) -> int:
     nodes = {}
     antinodes = set()
-    lines = list(parse(filename, load_line))
+    lines = list(parse_lines(filename, load_line))
     for line in lines:
         for n in line.nodes:
             nl = nodes.get(n.value, [])
